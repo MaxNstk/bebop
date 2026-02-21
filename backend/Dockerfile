@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:6.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS base
 
 WORKDIR /src
 
@@ -15,16 +15,17 @@ CMD ["dotnet", "build", "-c", "-o", "/build"]
 
 FROM builder as dev-envs
 
-RUN <<EOF
-apt-get update
-apt-get install -y git
-EOF
+#RUN <<EOF
+#apt-get update
+#apt-get install -y git
+#EOF
 
-RUN <<EOF
-useradd -s /bin/bash -m vscode
-groupadd docker
-usermod -aG docker vscode
-EOF
+
+#RUN <<EOF
+#useradd -s /bin/bash -m vscode
+#groupadd docker
+#usermod -aG docker vscode
+#EOF
 # install Docker tools (cli, buildx, compose)
 COPY --from=gloursdocker/docker / /
 
@@ -34,7 +35,7 @@ FROM builder AS publisher
 
 RUN ["dotnet", "publish", "-c", "Release", "-o", "/build"]
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:10.0
 
 WORKDIR /app
 COPY --from=publisher /build .
